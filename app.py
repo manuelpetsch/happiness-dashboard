@@ -36,6 +36,19 @@ selected_year = st.sidebar.slider("Select Year",
                                   int(df['Year'].max()), 
                                   2015)
 
+# --- NEW: Dropdown for Histogram Variable ---
+st.sidebar.divider()
+st.sidebar.header("Chart Settings")
+dist_options = {
+    'Economy (GDP)': 'GDP_per_Capita',
+    'Social Support': 'Social_Support',
+    'Health (Life Expectancy)': 'Life_Expectancy',
+    'Freedom': 'Freedom'
+}
+# User selects the friendly name, we get the column name
+selected_dist_label = st.sidebar.selectbox("Select Distribution Variable", list(dist_options.keys()))
+selected_dist_col = dist_options[selected_dist_label]
+
 df_year = df[df['Year'] == selected_year]
 
 # --- 4. MAIN HEADER & METRICS ---
@@ -51,8 +64,6 @@ col3.metric("Happiest Country", df_year.loc[df_year['Score'].idxmax()]['Country'
 st.divider()
 
 # --- 5. DEFINE ALTAIR CHARTS (PREPARATION) ---
-# We define the charts here, but render them inside the columns below
-
 brush = alt.selection_interval()
 
 # Viz 1: Scatter Plot
@@ -76,26 +87,20 @@ bars = alt.Chart(df_year).mark_bar().encode(
     height=400
 )
 
-# Viz 3: Histogram
+# Viz 3: Histogram (UPDATED to use selected_dist_col)
 hist = alt.Chart(df_year).mark_bar().encode(
-    x=alt.X('Life_Expectancy', bin=True, title='Life Expectancy'),
+    x=alt.X(selected_dist_col, bin=True, title=selected_dist_label),
     y='count()',
     color=alt.value('teal')
 ).transform_filter(brush).properties(
-    title="Life Expectancy Distribution",
+    title=f"Distribution of {selected_dist_label}", # Dynamic Title
     height=200
 )
 
 # Combine Altair Charts
-# Note: Since we are putting this in a column, we might want to stack them vertically
-# or keep the (scatter | bars) & hist layout depending on screen width.
-# We will keep the original layout, but Altair will auto-resize.
 dashboard = (scatter | bars) & hist
 
 # --- 6. SPLIT LAYOUT (MAIN DASHBOARD vs ANALYSIS) ---
-# Create a 2:1 split. 
-# col_main gets 2/3rds of the screen (for Altair)
-# col_side gets 1/3rd (for Correlation)
 col_main, col_side = st.columns([2, 1], gap="large")
 
 with col_main:
@@ -105,14 +110,12 @@ with col_main:
 with col_side:
     st.subheader("Correlations Heat Map")
     
-    # 1. Insight Text (Stacked vertically now)
     st.markdown("""
     **Insight:** Even across different years, **GDP** and **Life Expectancy** remain the strongest predictors of happiness.
     """)
     
-    # 2. Correlation Heatmap
-    # We create a new figure that fits the narrower column
-    fig, ax = plt.subplots(figsize=(5, 5)) # Square aspect ratio fits sidebars well
+    # Correlation Heatmap
+    fig, ax = plt.subplots(figsize=(5, 5)) 
     
     # Select only numeric columns of interest
     corr_cols = ['Score', 'GDP_per_Capita', 'Social_Support', 'Life_Expectancy', 'Freedom']
