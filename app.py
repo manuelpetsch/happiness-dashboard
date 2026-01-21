@@ -112,10 +112,10 @@ scatter = alt.Chart(df_year).mark_circle().encode(
     x=alt.X(x_axis_col, title=x_axis_label),
     y=alt.Y('Score', title='Happiness Score'),
     
-    # FIX: Define the full color logic inside alt.Color first
+    # FIX: Added ':N' type and removed legend=None to prevent ValueError
     color=alt.condition(
         brush, 
-        alt.Color('Region', scale=alt.Scale(scheme='tableau10'), legend=None), 
+        alt.Color('Region:N', scale=alt.Scale(scheme='tableau10')), 
         alt.value('lightgray')
     ),
     
