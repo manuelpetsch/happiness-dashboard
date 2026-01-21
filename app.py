@@ -115,7 +115,7 @@ scatter = alt.Chart(df_year).mark_circle().encode(
     # FIX: Added ':N' type and removed legend=None to prevent ValueError
     color=alt.condition(
         brush, 
-        alt.Color('Region:N', scale=alt.Scale(scheme='accent')), 
+        alt.Color('Region:N', scale=alt.Scale(scheme='cividis')), 
         alt.value('lightgray')
     ),
     
