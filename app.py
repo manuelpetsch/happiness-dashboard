@@ -113,7 +113,12 @@ scatter = alt.Chart(df_year).mark_circle().encode(
     y=alt.Y('Score', title='Happiness Score'),
     
     # Color: Gray out unselected points (Brush), otherwise color by Region
-    color=alt.condition(brush, 'Region', alt.value('lightgray'), legend=None),
+    color=alt.condition(
+        brush, 
+        alt.Color('Region', scale=alt.Scale(scheme='tableau10')), 
+        alt.value('lightgray'), 
+        legend=None
+    ),
     
     # Size: If "Is_Selected" is True, make it huge (200), otherwise normal (60)
     size=alt.condition(
@@ -181,5 +186,5 @@ with col_side:
     corr_cols = ['Score', 'GDP_per_Capita', 'Social_Support', 'Life_Expectancy', 'Freedom', 'Generosity']
     corr = df_year[corr_cols].corr()
     
-    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax, cbar=False, fmt=".2f")
+    sns.heatmap(corr, annot=True, cmap='cividis', ax=ax, cbar=False, fmt=".2f")
     st.pyplot(fig)
