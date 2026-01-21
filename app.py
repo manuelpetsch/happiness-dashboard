@@ -109,25 +109,22 @@ df_year['Is_Selected'] = df_year['Country'].isin(selected_countries)
 
 # Viz 1: Scatter Plot (Dynamic Axes + Highlight)
 scatter = alt.Chart(df_year).mark_circle().encode(
-    x=alt.X(x_axis_col, title=x_axis_label),  # Dynamic X-Axis
+    x=alt.X(x_axis_col, title=x_axis_label),
     y=alt.Y('Score', title='Happiness Score'),
     
-    # Color: Gray out unselected points (Brush), otherwise color by Region
+    # FIX: Define the full color logic inside alt.Color first
     color=alt.condition(
         brush, 
-        alt.Color('Region', scale=alt.Scale(scheme='tableau10')), 
-        alt.value('lightgray'), 
-        legend=None
+        alt.Color('Region', scale=alt.Scale(scheme='tableau10'), legend=None), 
+        alt.value('lightgray')
     ),
     
-    # Size: If "Is_Selected" is True, make it huge (200), otherwise normal (60)
     size=alt.condition(
         alt.datum.Is_Selected, 
-        alt.value(300),  # Highlight size
-        alt.value(60)    # Normal size
+        alt.value(300), 
+        alt.value(60)
     ),
     
-    # Stroke: Add a black border to selected countries
     stroke=alt.condition(
         alt.datum.Is_Selected,
         alt.value('black'),
